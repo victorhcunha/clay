@@ -79,6 +79,11 @@ interface IProps extends React.InputHTMLAttributes<HTMLInputElement> {
 	colors?: Array<string>;
 
 	/**
+	 * Property to set the initial value of `active`.
+	 */
+	defaultActive?: boolean;
+
+	/**
 	 * Flag for adding ColorPicker in disabled state
 	 */
 	disabled?: boolean;
@@ -161,6 +166,7 @@ const ClayColorPicker: React.FunctionComponent<IProps> = ({
 	active,
 	ariaLabels = DEFAULT_ARIA_LABELS,
 	colors,
+	defaultActive = false,
 	disabled,
 	dropDownContainerProps,
 	label,
@@ -179,9 +185,7 @@ const ClayColorPicker: React.FunctionComponent<IProps> = ({
 	value = 'FFFFFF',
 	...otherProps
 }: IProps) => {
-	const [customEditorActive, setCustomEditorActive] = React.useState(
-		!showPalette
-	);
+	const [customEditorActive, setCustomEditorActive] = React.useState(false);
 	const isHex = tinycolor(value).getFormat() === 'hex';
 
 	if (isHex && value.indexOf('#') === 0) {
@@ -210,10 +214,19 @@ const ClayColorPicker: React.FunctionComponent<IProps> = ({
 	const splotchRef = React.useRef<HTMLButtonElement>(null);
 
 	const [internalActive, setInternalActive] = useInternalState({
-		initialValue: false,
+		defaultName: 'defaultActive',
+		handleName: 'onActiveChange',
+		initialValue: defaultActive,
+		name: 'active',
 		onChange: onActiveChange,
 		value: active,
 	});
+
+	React.useEffect(() => {
+		if (!internalActive) {
+			setCustomEditorActive(false);
+		}
+	}, [internalActive]);
 
 	return (
 		<FocusScope arrowKeysUpDown={false}>
@@ -254,11 +267,23 @@ const ClayColorPicker: React.FunctionComponent<IProps> = ({
 								aria-label={ariaLabels.selectColor}
 								className="dropdown-toggle"
 								disabled={disabled}
-								onClick={() =>
-									useNative && valueInputRef.current
-										? valueInputRef.current.click()
-										: setInternalActive(!internalActive)
-								}
+								onClick={() => {
+									{
+										if (
+											useNative &&
+											valueInputRef.current
+										) {
+											valueInputRef.current.click();
+										} else {
+											setInternalActive(!internalActive);
+											if (!showPalette) {
+												setCustomEditorActive(
+													!customEditorActive
+												);
+											}
+										}
+									}
+								}}
 								ref={splotchRef}
 								value={value}
 							/>
@@ -297,6 +322,7 @@ const ClayColorPicker: React.FunctionComponent<IProps> = ({
 
 						{onColorsChange && (
 							<Custom
+								active={internalActive}
 								colors={
 									colors
 										? colors
