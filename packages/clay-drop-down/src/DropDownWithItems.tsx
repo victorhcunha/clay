@@ -61,6 +61,13 @@ export interface IProps extends IDropDownContentProps {
 	active?: React.ComponentProps<typeof ClayDropDown>['active'];
 
 	/**
+	 * Flag to align the DropDown menu within the viewport.
+	 */
+	alignmentByViewport?: React.ComponentProps<
+		typeof ClayDropDownMenu
+	>['alignmentByViewport'];
+
+	/**
 	 * Default position of menu element. Values come from `./Menu`.
 	 */
 	alignmentPosition?: React.ComponentProps<
@@ -84,6 +91,11 @@ export interface IProps extends IDropDownContentProps {
 	containerElement?: React.ComponentProps<
 		typeof ClayDropDown
 	>['containerElement'];
+
+	/**
+	 * Property to set the initial value of `active`.
+	 */
+	defaultActive?: boolean;
 
 	/**
 	 * Add an action button or any other element you want to be fixed position to the
@@ -123,6 +135,13 @@ export interface IProps extends IDropDownContentProps {
 	 * Callback will always be called when the user is interacting with search.
 	 */
 	onSearchValueChange?: (newValue: string) => void;
+
+	/**
+	 * Flag indicating if the menu should be rendered lazily
+	 */
+	renderMenuOnClick?: React.ComponentProps<
+		typeof ClayDropDown
+	>['renderMenuOnClick'];
 
 	/**
 	 * Flag to show search at the top of the DropDown.
@@ -378,11 +397,13 @@ const findNested = <
 
 export const ClayDropDownWithItems: React.FunctionComponent<IProps> = ({
 	active,
+	alignmentByViewport,
 	alignmentPosition,
 	caption,
 	className,
 	closeOnClickOutside,
 	containerElement,
+	defaultActive,
 	footerContent,
 	helpText,
 	items,
@@ -392,6 +413,7 @@ export const ClayDropDownWithItems: React.FunctionComponent<IProps> = ({
 	offsetFn,
 	onActiveChange,
 	onSearchValueChange = () => {},
+	renderMenuOnClick,
 	searchable,
 	searchProps,
 	searchValue = '',
@@ -399,7 +421,10 @@ export const ClayDropDownWithItems: React.FunctionComponent<IProps> = ({
 	trigger,
 }: IProps) => {
 	const [internalActive, setInternalActive] = useInternalState({
-		initialValue: false,
+		defaultName: 'defaultActive',
+		handleName: 'onActiveChange',
+		initialValue: defaultActive,
+		name: 'active',
 		onChange: onActiveChange,
 		value: active,
 	});
@@ -418,6 +443,7 @@ export const ClayDropDownWithItems: React.FunctionComponent<IProps> = ({
 	return (
 		<ClayDropDown
 			active={internalActive}
+			alignmentByViewport={alignmentByViewport}
 			alignmentPosition={alignmentPosition}
 			className={className}
 			closeOnClickOutside={closeOnClickOutside}
@@ -429,6 +455,7 @@ export const ClayDropDownWithItems: React.FunctionComponent<IProps> = ({
 			menuWidth={menuWidth}
 			offsetFn={offsetFn}
 			onActiveChange={setInternalActive}
+			renderMenuOnClick={renderMenuOnClick}
 			trigger={trigger}
 		>
 			<ClayDropDownContext.Provider

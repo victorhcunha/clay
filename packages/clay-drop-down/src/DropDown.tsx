@@ -29,6 +29,13 @@ interface IProps extends React.HTMLAttributes<HTMLDivElement | HTMLLIElement> {
 	active: boolean;
 
 	/**
+	 * Flag to align the DropDown menu within the viewport.
+	 */
+	alignmentByViewport?: React.ComponentProps<
+		typeof Menu
+	>['alignmentByViewport'];
+
+	/**
 	 * Default position of menu element. Values come from `./Menu`.
 	 */
 	alignmentPosition?: React.ComponentProps<typeof Menu>['alignmentPosition'];
@@ -77,6 +84,11 @@ interface IProps extends React.HTMLAttributes<HTMLDivElement | HTMLLIElement> {
 	offsetFn?: React.ComponentProps<typeof Menu>['offsetFn'];
 
 	/**
+	 * Flag indicating if the menu should be rendered lazily
+	 */
+	renderMenuOnClick?: boolean;
+
+	/**
 	 * Element that is used as the trigger which will activate the dropdown on click.
 	 */
 	trigger: React.ReactElement & {
@@ -97,6 +109,7 @@ const ClayDropDown: React.FunctionComponent<IProps> & {
 	Section: typeof Section;
 } = ({
 	active = false,
+	alignmentByViewport,
 	alignmentPosition,
 	children,
 	className,
@@ -109,13 +122,14 @@ const ClayDropDown: React.FunctionComponent<IProps> & {
 	menuWidth,
 	offsetFn,
 	onActiveChange,
+	renderMenuOnClick = false,
 	trigger,
 	...otherProps
 }: IProps) => {
 	const triggerElementRef = React.useRef<HTMLButtonElement | null>(null);
 	const menuElementRef = React.useRef<HTMLDivElement>(null);
 
-	const [initialized, setInitialized] = React.useState(false);
+	const [initialized, setInitialized] = React.useState(!renderMenuOnClick);
 
 	const handleKeyUp = (event: React.KeyboardEvent<HTMLElement>) => {
 		if (event.key === Keys.Esc) {
@@ -178,6 +192,7 @@ const ClayDropDown: React.FunctionComponent<IProps> & {
 						{...menuElementAttrs}
 						active={active}
 						alignElementRef={triggerElementRef}
+						alignmentByViewport={alignmentByViewport}
 						alignmentPosition={alignmentPosition}
 						closeOnClickOutside={closeOnClickOutside}
 						hasLeftSymbols={hasLeftSymbols}

@@ -18,6 +18,13 @@ interface IProps extends React.HTMLAttributes<HTMLDivElement> {
 	active?: boolean;
 
 	/**
+	 * Flag to align the DropDown menu within the viewport.
+	 */
+	alignmentByViewport?: React.ComponentProps<
+		typeof ClayDropDownMenu
+	>['alignmentByViewport'];
+
+	/**
 	 * Default position of menu element. Values come from `./Menu`.
 	 */
 	alignmentPosition?: React.ComponentProps<
@@ -30,6 +37,11 @@ interface IProps extends React.HTMLAttributes<HTMLDivElement> {
 	containerElement?: React.ComponentProps<
 		typeof ClayDropDown
 	>['containerElement'];
+
+	/**
+	 * Property to set the initial value of `active`.
+	 */
+	defaultActive?: boolean;
 
 	/**
 	 * The unique identifier of the menu that should be active on mount.
@@ -70,6 +82,13 @@ interface IProps extends React.HTMLAttributes<HTMLDivElement> {
 	spritemap?: string;
 
 	/**
+	 * Flag indicating if the menu should be rendered lazily
+	 */
+	renderMenuOnClick?: React.ComponentProps<
+		typeof ClayDropDown
+	>['renderMenuOnClick'];
+
+	/**
 	 * Element that is used as the trigger which will activate the dropdown on click.
 	 */
 	trigger: React.ReactElement;
@@ -82,9 +101,11 @@ interface IHistory {
 
 export const ClayDropDownWithDrilldown: React.FunctionComponent<IProps> = ({
 	active,
+	alignmentByViewport,
 	alignmentPosition,
 	className,
 	containerElement,
+	defaultActive,
 	initialActiveMenu,
 	menuElementAttrs,
 	menuHeight,
@@ -92,13 +113,19 @@ export const ClayDropDownWithDrilldown: React.FunctionComponent<IProps> = ({
 	menus,
 	offsetFn,
 	onActiveChange,
+	renderMenuOnClick,
 	spritemap,
 	trigger,
 }: IProps) => {
 	const [activeMenu, setActiveMenu] = React.useState(initialActiveMenu);
 	const [direction, setDirection] = React.useState<'prev' | 'next'>();
 	const [history, setHistory] = React.useState<Array<IHistory>>([]);
+
 	const [internalActive, setInternalActive] = useInternalState({
+		defaultName: 'defaultActive',
+		handleName: 'onActiveChange',
+		initialValue: defaultActive,
+		name: 'active',
 		onChange: onActiveChange,
 		value: active,
 	});
@@ -108,6 +135,7 @@ export const ClayDropDownWithDrilldown: React.FunctionComponent<IProps> = ({
 	return (
 		<ClayDropDown
 			active={internalActive}
+			alignmentByViewport={alignmentByViewport}
 			alignmentPosition={alignmentPosition}
 			className={className}
 			containerElement={containerElement}
@@ -120,6 +148,7 @@ export const ClayDropDownWithDrilldown: React.FunctionComponent<IProps> = ({
 			menuWidth={menuWidth}
 			offsetFn={offsetFn}
 			onActiveChange={setInternalActive}
+			renderMenuOnClick={renderMenuOnClick}
 			trigger={trigger}
 		>
 			<Drilldown.Inner>
